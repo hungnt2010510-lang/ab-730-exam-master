@@ -230,10 +230,13 @@
       <button onclick="switchPracticeFilter('topic1')" id="pracBtn-topic1" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-300">
         Topic 1 (25c)
       </button>
-      <button onclick="switchPracticeFilter('topic2')" id="pracBtn-topic2" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-300">
-        Topic 2 (40c)
+      <button onclick="switchPracticeFilter('topic2a')" id="pracBtn-topic2a" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-300 whitespace-nowrap" title="20 câu đầu của Topic 2">
+        Topic 2a (20c)
       </button>
-      <button onclick="switchPracticeFilter('topic3')" id="pracBtn-topic3" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-300">
+      <button onclick="switchPracticeFilter('topic2b')" id="pracBtn-topic2b" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-300 whitespace-nowrap" title="20 câu tiếp theo của Topic 2">
+        Topic 2b (20c)
+      </button>
+      <button onclick="switchPracticeFilter('topic3')" id="pracBtn-topic3" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-300 whitespace-nowrap">
         Topic 3 (21c)
       </button>
 
@@ -551,16 +554,23 @@
         </button>
       </div>
 
-      <!-- 3 Tabs Navigation -->
-      <div class="flex border-b border-slate-800 px-6 pt-3 gap-2 bg-slate-950/40">
-        <button onclick="switchDashTab('summary')" id="dashTab-summary" class="px-4 py-2 text-xs font-bold border-b-2 border-purple-500 text-purple-300">
-          Tổng Quan (86c)
+      <!-- 4 Tabs Navigation -->
+      <div class="flex border-b border-slate-800 px-4 sm:px-6 pt-3 gap-1 sm:gap-2 bg-slate-950/40 overflow-x-auto custom-scroll">
+        <button onclick="switchDashTab('summary')" id="dashTab-summary" class="px-3 sm:px-4 py-2.5 text-xs font-bold border-b-2 border-purple-500 text-purple-300 flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-gauge-high"></i>
+          <span>Tổng Quan (86c)</span>
         </button>
-        <button onclick="switchDashTab('topics')" id="dashTab-topics" class="px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200">
-          Theo 3 Topic
+        <button onclick="switchDashTab('topics')" id="dashTab-topics" class="px-3 sm:px-4 py-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-shapes"></i>
+          <span>Theo Chuyên Đề</span>
         </button>
-        <button onclick="switchDashTab('weakness')" id="dashTab-weakness" class="px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200">
-          Danh Sách Câu Sai
+        <button onclick="switchDashTab('exams')" id="dashTab-exams" class="px-3 sm:px-4 py-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-file-signature"></i>
+          <span>Theo 5 Đề Thi</span>
+        </button>
+        <button onclick="switchDashTab('weakness')" id="dashTab-weakness" class="px-3 sm:px-4 py-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>Danh Sách Câu Sai</span>
         </button>
       </div>
 
@@ -779,6 +789,14 @@
       } else {
         if (practiceFilter === 'all') return fullDatabase;
         if (practiceFilter === 'topic1') return fullDatabase.filter(q => q.topicId === 'topic1');
+        if (practiceFilter === 'topic2a') {
+          const t2 = fullDatabase.filter(q => q.topicId === 'topic2');
+          return t2.slice(0, 20);
+        }
+        if (practiceFilter === 'topic2b') {
+          const t2 = fullDatabase.filter(q => q.topicId === 'topic2');
+          return t2.slice(20, 40);
+        }
         if (practiceFilter === 'topic2') return fullDatabase.filter(q => q.topicId === 'topic2');
         if (practiceFilter === 'topic3') return fullDatabase.filter(q => q.topicId === 'topic3');
         if (practiceFilter === 'de1') return fullDatabase.slice(0, 20);
@@ -793,6 +811,9 @@
             if (!isChk || !ans || ans.length === 0) return false;
             return !isQuestionCorrect(q.id, ans);
           });
+        }
+        if (practiceFilter === 'unlearned') {
+          return fullDatabase.filter(q => !practiceChecked[q.id]);
         }
         return fullDatabase;
       }
@@ -873,13 +894,16 @@
           'all': 'Toàn Bộ 86 Câu Hỏi',
           'topic1': 'Topic 1: Nền Tảng GenAI (25 Câu)',
           'topic2': 'Topic 2: Quản Lý Prompts & Copilot (40 Câu)',
+          'topic2a': 'Topic 2a: Quản Lý Prompts & Chat - Phần 1 (20 Câu)',
+          'topic2b': 'Topic 2b: Quản Lý Prompts & Chat - Phần 2 (20 Câu)',
           'topic3': 'Topic 3: Phân Tích & Soạn Thảo (21 Câu)',
-          'de1': 'Chặng 1: Câu 1 - 20',
-          'de2': 'Chặng 2: Câu 21 - 40',
-          'de3': 'Chặng 3: Câu 41 - 60',
-          'de4': 'Chặng 4: Câu 61 - 80',
-          'de5': 'Chặng 5: Câu 81 - 86',
-          'wrong': 'Các Câu Từng Làm Sai Cần Ôn Lại'
+          'de1': 'Chặng 1: Câu 1 - 20 (Đề 1)',
+          'de2': 'Chặng 2: Câu 21 - 40 (Đề 2)',
+          'de3': 'Chặng 3: Câu 41 - 60 (Đề 3)',
+          'de4': 'Chặng 4: Câu 61 - 80 (Đề 4)',
+          'de5': 'Chặng 5: Câu 81 - 86 (Đề 5)',
+          'wrong': 'Các Câu Từng Làm Sai Cần Ôn Lại',
+          'unlearned': 'Các Câu Chưa Học (Chưa Làm)'
         };
         bannerTitle.innerText = filterNames[practiceFilter] || 'Luyện Tập AB-730';
         counterEl.innerText = `Câu ${currIdx + 1} / ${questions.length}`;
@@ -1293,6 +1317,29 @@
     function jumpToQuestion(idx) {
       setCurrentIndex(idx);
       renderView();
+    }
+
+    function jumpToSpecificQuestion(questionId) {
+      if (currentMainTab !== 'practice') {
+        switchMainTab('practice');
+      }
+      let questions = getActiveQuestions();
+      let idx = questions.findIndex(q => q.id === questionId);
+      if (idx === -1) {
+        switchPracticeFilter('all');
+        questions = getActiveQuestions();
+        idx = questions.findIndex(q => q.id === questionId);
+      }
+      if (idx !== -1) {
+        setCurrentIndex(idx);
+        renderView();
+        renderPalette();
+        showToast(`Đã chuyển tới câu hỏi #${questionId}`);
+      }
+    }
+
+    function setPracticeFilter(filter) {
+      switchPracticeFilter(filter);
     }
 
     // 12. RENDER PALETTE
@@ -1990,121 +2037,326 @@ Toàn bộ câu trả lời của đề này sẽ được xóa trắng để b�
     }
 
     function switchDashTab(tab) {
-      ['summary', 'topics', 'weakness'].forEach(t => {
+      ['summary', 'topics', 'exams', 'weakness'].forEach(t => {
         const b = document.getElementById('dashTab-' + t);
         if (b) {
-          b.className = 'px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200';
+          b.className = 'px-3 sm:px-4 py-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap transition';
         }
       });
       const ab = document.getElementById('dashTab-' + tab);
       if (ab) {
-        ab.className = 'px-4 py-2 text-xs font-bold border-b-2 border-purple-500 text-purple-300';
+        ab.className = 'px-3 sm:px-4 py-2.5 text-xs font-bold border-b-2 border-purple-500 text-purple-300 flex items-center gap-1.5 whitespace-nowrap transition';
       }
 
       const container = document.getElementById('dashTabContent');
 
-      if (tab === 'summary') {
-        let totalLearned = 0, totalCorrect = 0;
-        fullDatabase.forEach(q => {
-          const ans = practiceAnswers[q.id];
-          if (practiceChecked[q.id]) {
-            totalLearned++;
-            if (isQuestionCorrect(q.id, ans)) totalCorrect++;
+      // Helper tính toán
+      let totalLearned = 0, totalCorrect = 0, totalWrong = 0, totalUnlearned = 0;
+      fullDatabase.forEach(q => {
+        const ans = practiceAnswers[q.id];
+        if (practiceChecked[q.id]) {
+          totalLearned++;
+          if (isQuestionCorrect(q.id, ans)) {
+            totalCorrect++;
+          } else {
+            totalWrong++;
           }
-        });
+        } else {
+          totalUnlearned++;
+        }
+      });
 
-        const pct = Math.round((totalCorrect / 86) * 100);
+      const masteryPct = Math.round((totalCorrect / 86) * 100);
+      const learnedPct = Math.round((totalLearned / 86) * 100);
+      const estimatedScore = Math.min(1000, Math.round(300 + (totalCorrect / 86) * 700));
+
+      if (tab === 'summary') {
+        let readinessBadge = '';
+        let readinessAdvice = '';
+        if (totalCorrect >= 70) {
+          readinessBadge = '<span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold"><i class="fa-solid fa-circle-check mr-1"></i> RẤT SẴN SÀNG (DỰ KIẾN 850 - 1000 ĐIỂM)</span>';
+          readinessAdvice = 'Bạn đã nắm vững phần lớn ngân hàng đề AB-730. Hãy chuyển sang tab <strong>Thi Thử (Exam Mode)</strong> làm thử 40 câu 45 phút để rèn tốc độ làm bài!';
+        } else if (totalCorrect >= 50) {
+          readinessBadge = '<span class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 text-xs font-bold"><i class="fa-solid fa-shield-halved mr-1"></i> ĐẠT CHUẨN ĐỖ CƠ BẢN (DỰ KIẾN 700 - 800 ĐIỂM)</span>';
+          readinessAdvice = 'Bạn đã chạm ngưỡng đỗ chứng chỉ (>= 700 điểm). Hãy rà soát lại các câu làm sai và ôn kỹ Topic 2 để chắc chắn đạt điểm cao.';
+        } else {
+          readinessBadge = '<span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> CẦN LUYỆN THÊM (DỰ KIẾN DƯỚI 700 ĐIỂM)</span>';
+          readinessAdvice = 'Bạn cần làm thêm các câu chưa học và ôn tập kỹ các câu sai trong Topic 2 & Topic 3 để đạt tối thiểu 700/1000 điểm.';
+        }
 
         container.innerHTML = `
           <div class="flex flex-col gap-6">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
-              <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700">
-                <div class="text-2xl font-black text-indigo-400 font-mono">${totalLearned} / 86</div>
-                <div class="text-xs text-slate-400 mt-1">Số Câu Đã Ôn</div>
+            <!-- 4 Thẻ chỉ số chính -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+              <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+                <div class="text-2xl font-black text-indigo-400 font-mono">${totalLearned} <span class="text-sm font-normal text-slate-500">/ 86</span></div>
+                <div class="text-xs text-slate-400 mt-1">Đã Làm (${learnedPct}%)</div>
               </div>
-              <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700">
-                <div class="text-2xl font-black text-emerald-400 font-mono">${totalCorrect} / 86</div>
-                <div class="text-xs text-slate-400 mt-1">Đã Nắm Vững (Làm Đúng)</div>
+              <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+                <div class="text-2xl font-black text-emerald-400 font-mono">${totalCorrect} <span class="text-sm font-normal text-slate-500">/ 86</span></div>
+                <div class="text-xs text-slate-400 mt-1">Nắm Vững (${masteryPct}%)</div>
               </div>
-              <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700">
-                <div class="text-2xl font-black text-purple-400 font-mono">${pct}%</div>
-                <div class="text-xs text-slate-400 mt-1">Tỷ Lệ Thuộc Bài</div>
+              <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+                <div class="text-2xl font-black text-rose-400 font-mono">${totalWrong}</div>
+                <div class="text-xs text-slate-400 mt-1">Câu Cần Sửa Lại</div>
+              </div>
+              <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+                <div class="text-2xl font-black text-amber-400 font-mono">${totalUnlearned}</div>
+                <div class="text-xs text-slate-400 mt-1">Chưa Học</div>
               </div>
             </div>
 
-            <div class="p-5 rounded-2xl bg-slate-800/60 border border-slate-700 flex flex-col gap-3">
-              <div class="text-xs font-bold text-slate-300 uppercase">Đánh Giá Độ Sẵn Sàng Đi Thi</div>
-              <p class="text-xs text-slate-300 leading-relaxed">
-                ${pct >= 85 ? '🌟 <strong>RẤT SẴN SÀNG:</strong> Bạn đã nắm vững trên 85% bộ đề, khả năng đạt trên 850/1000 điểm thi thật là rất cao!' : (pct >= 70 ? '✅ <strong>ĐÃ ĐẠT CHUẨN ĐỖ (>= 700):</strong> Bạn đã qua ngưỡng an toàn. Hãy luyện thêm đề thi thử để tăng phản xạ thời gian.' : '⚠️ <strong>CẦN ÔN THÊM:</strong> Bạn cần ôn thêm các câu hỏi trong Topic 2 và các câu làm sai để đạt trên 70% nhé.')}
-              </p>
+            <!-- Ước tính điểm thi & Đánh giá -->
+            <div class="p-5 rounded-2xl bg-slate-800/60 border border-slate-700 flex flex-col gap-4">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-award text-amber-400 text-base"></i>
+                  <span class="text-xs font-bold text-slate-200 uppercase tracking-wider">Ước Tính Điểm Thi Thật Microsoft (Thang 1000)</span>
+                </div>
+                <div>${readinessBadge}</div>
+              </div>
+
+              <div class="flex items-baseline gap-2">
+                <span class="text-3xl font-black text-white font-mono">${estimatedScore}</span>
+                <span class="text-xs text-slate-400">/ 1000 Điểm (Điểm đạt: >= 700)</span>
+              </div>
+
+              <!-- Thanh tiến độ điểm -->
+              <div class="relative w-full bg-slate-900 rounded-full h-3.5 overflow-hidden border border-slate-700/60">
+                <div class="bg-gradient-to-r from-rose-500 via-amber-500 to-emerald-500 h-full rounded-full transition-all duration-500" style="width: ${(estimatedScore / 1000) * 100}%;"></div>
+              </div>
+              <div class="flex justify-between text-[11px] text-slate-400 font-mono px-1">
+                <span>0</span>
+                <span>Chuẩn đỗ: 700</span>
+                <span>1000</span>
+              </div>
+
+              <div class="text-xs text-slate-300 leading-relaxed bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/50">
+                ${readinessAdvice}
+              </div>
+            </div>
+
+            <!-- Các hành động nhanh -->
+            <div class="flex flex-wrap items-center gap-2.5">
+              ${totalWrong > 0 ? `
+                <button onclick="closeLearningDashboard(); setPracticeFilter('wrong');" class="px-4 py-2.5 rounded-xl bg-rose-600/90 hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-2 transition shadow-md">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  <span>Luyện Ngay ${totalWrong} Câu Đang Làm Sai</span>
+                </button>
+              ` : ''}
+
+              ${totalUnlearned > 0 ? `
+                <button onclick="closeLearningDashboard(); setPracticeFilter('unlearned');" class="px-4 py-2.5 rounded-xl bg-indigo-600/90 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-2 transition shadow-md">
+                  <i class="fa-solid fa-graduation-cap"></i>
+                  <span>Học Tiếp ${totalUnlearned} Câu Chưa Làm</span>
+                </button>
+              ` : ''}
+
+              <button onclick="closeLearningDashboard(); switchMainTab('exam'); startRandomMockExam();" class="px-4 py-2.5 rounded-xl bg-purple-600/90 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-2 transition shadow-md">
+                <i class="fa-solid fa-shuffle"></i>
+                <span>Thi Thử Ngẫu Nhiên 40 Câu (45 Phút)</span>
+              </button>
             </div>
           </div>
         `;
       } else if (tab === 'topics') {
-        const calcTopic = (tid) => {
-          const list = fullDatabase.filter(q => q.topicId === tid);
-          let cor = 0;
+        const calcTopic = (tid, sliceStart, sliceEnd) => {
+          let list = fullDatabase.filter(q => q.topicId === tid);
+          if (typeof sliceStart === 'number' && typeof sliceEnd === 'number') {
+            list = list.slice(sliceStart, sliceEnd);
+          }
+          let learned = 0, cor = 0;
           list.forEach(q => {
-            if (practiceChecked[q.id] && isQuestionCorrect(q.id, practiceAnswers[q.id])) cor++;
+            if (practiceChecked[q.id]) {
+              learned++;
+              if (isQuestionCorrect(q.id, practiceAnswers[q.id])) cor++;
+            }
           });
-          return { cor, tot: list.length, p: Math.round((cor / list.length) * 100) };
+          return {
+            learned,
+            cor,
+            tot: list.length,
+            p: list.length > 0 ? Math.round((cor / list.length) * 100) : 0,
+            lp: list.length > 0 ? Math.round((learned / list.length) * 100) : 0
+          };
         };
 
         const t1 = calcTopic('topic1');
-        const t2 = calcTopic('topic2');
+        const t2a = calcTopic('topic2', 0, 20);
+        const t2b = calcTopic('topic2', 20, 40);
         const t3 = calcTopic('topic3');
 
-        container.innerHTML = `
-          <div class="flex flex-col gap-4">
-            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 flex flex-col gap-2">
-              <div class="flex justify-between items-center text-xs font-bold">
-                <span class="text-blue-300">Topic 1: Nền Tảng GenAI (25 câu)</span>
-                <span class="text-slate-300 font-mono">${t1.cor}/${t1.tot} (${t1.p}%)</span>
-              </div>
-              <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden"><div class="bg-blue-500 h-2" style="width: ${t1.p}%;"></div></div>
-            </div>
+        const topicsData = [
+          {
+            key: 'topic1',
+            title: 'Topic 1: Nền Tảng GenAI & MS Copilot (25 Câu)',
+            desc: 'Hiểu các mô hình AI, Prompt cơ bản, đạo đức và bảo mật dữ liệu.',
+            stats: t1,
+            color: 'blue'
+          },
+          {
+            key: 'topic2a',
+            title: 'Topic 2a: Quản Lý Prompts & Copilot Chat - Phần 1 (20 Câu)',
+            desc: 'Kỹ thuật prompt chuyên sâu, vai trò, ngữ cảnh và chat đa vòng.',
+            stats: t2a,
+            color: 'purple'
+          },
+          {
+            key: 'topic2b',
+            title: 'Topic 2b: Quản Lý Prompts & Copilot Chat - Phần 2 (20 Câu)',
+            desc: 'Ứng dụng Copilot trong các ngữ cảnh doanh nghiệp, tinh chỉnh câu trả lời.',
+            stats: t2b,
+            color: 'indigo'
+          },
+          {
+            key: 'topic3',
+            title: 'Topic 3: Phân Tích Dữ Liệu & Soạn Thảo (21 Câu)',
+            desc: 'Excel, Word, PowerPoint Copilot: phân tích, tóm tắt và tạo bài thuyết trình.',
+            stats: t3,
+            color: 'emerald'
+          }
+        ];
 
-            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 flex flex-col gap-2">
-              <div class="flex justify-between items-center text-xs font-bold">
-                <span class="text-purple-300">Topic 2: Quản Lý Prompts & Copilot Chat (40 câu)</span>
-                <span class="text-slate-300 font-mono">${t2.cor}/${t2.tot} (${t2.p}%)</span>
+        let html = `<div class="flex flex-col gap-4">`;
+        topicsData.forEach(item => {
+          const s = item.stats;
+          html += `
+            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex flex-col gap-3">
+              <div class="flex flex-wrap justify-between items-center gap-2">
+                <div>
+                  <div class="text-xs font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-${item.color}-400"></span>
+                    <span>${escapeHtml(item.title)}</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">${escapeHtml(item.desc)}</div>
+                </div>
+                <button onclick="closeLearningDashboard(); setPracticeFilter('${item.key}');" class="px-3 py-1.5 rounded-lg bg-slate-700/80 hover:bg-slate-600 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition">
+                  <span>Luyện Topic Này</span>
+                  <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </button>
               </div>
-              <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden"><div class="bg-purple-500 h-2" style="width: ${t2.p}%;"></div></div>
-            </div>
 
-            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 flex flex-col gap-2">
-              <div class="flex justify-between items-center text-xs font-bold">
-                <span class="text-pink-300">Topic 3: Phân Tích & Soạn Thảo (21 câu)</span>
-                <span class="text-slate-300 font-mono">${t3.cor}/${t3.tot} (${t3.p}%)</span>
+              <!-- Thống kê tỷ lệ -->
+              <div class="grid grid-cols-3 gap-2 text-center text-xs bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                <div>
+                  <span class="text-slate-400 block text-[10px]">Đã học</span>
+                  <span class="font-bold text-indigo-300 font-mono">${s.learned} / ${s.tot} (${s.lp}%)</span>
+                </div>
+                <div>
+                  <span class="text-slate-400 block text-[10px]">Đúng vững</span>
+                  <span class="font-bold text-emerald-300 font-mono">${s.cor} / ${s.tot}</span>
+                </div>
+                <div>
+                  <span class="text-slate-400 block text-[10px]">Độ thành thạo</span>
+                  <span class="font-bold text-purple-300 font-mono">${s.p}%</span>
+                </div>
               </div>
-              <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden"><div class="bg-pink-500 h-2" style="width: ${t3.p}%;"></div></div>
+
+              <!-- Progress bar -->
+              <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden">
+                <div class="bg-${item.color}-500 h-2.5 rounded-full transition-all duration-300" style="width: ${s.p}%;"></div>
+              </div>
             </div>
-          </div>
-        `;
+          `;
+        });
+        html += `</div>`;
+        container.innerHTML = html;
+      } else if (tab === 'exams') {
+        const examsData = [
+          { key: 'de1', title: 'Chặng 1: Câu 1 - 20 (Đề 1)', start: 0, end: 20 },
+          { key: 'de2', title: 'Chặng 2: Câu 21 - 40 (Đề 2)', start: 20, end: 40 },
+          { key: 'de3', title: 'Chặng 3: Câu 41 - 60 (Đề 3)', start: 40, end: 60 },
+          { key: 'de4', title: 'Chặng 4: Câu 61 - 80 (Đề 4)', start: 60, end: 80 },
+          { key: 'de5', title: 'Chặng 5: Câu 81 - 86 (Đề 5)', start: 80, end: 86 }
+        ];
+
+        let html = `<div class="flex flex-col gap-3">`;
+        examsData.forEach(exam => {
+          const slice = fullDatabase.slice(exam.start, exam.end);
+          let learned = 0, cor = 0;
+          slice.forEach(q => {
+            if (practiceChecked[q.id]) {
+              learned++;
+              if (isQuestionCorrect(q.id, practiceAnswers[q.id])) cor++;
+            }
+          });
+          const pct = Math.round((cor / slice.length) * 100);
+
+          html += `
+            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex-1 min-w-[200px]">
+                <div class="text-xs font-bold text-white mb-1">${escapeHtml(exam.title)}</div>
+                <div class="flex items-center gap-3 text-xs text-slate-400 font-mono">
+                  <span>Đã học: <strong class="text-slate-200">${learned}/${slice.length}</strong></span>
+                  <span>Đúng: <strong class="text-emerald-400">${cor}/${slice.length}</strong></span>
+                  <span>Thành thạo: <strong class="text-purple-400">${pct}%</strong></span>
+                </div>
+                <div class="w-full bg-slate-900 rounded-full h-2 mt-2 overflow-hidden">
+                  <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full" style="width: ${pct}%;"></div>
+                </div>
+              </div>
+              <button onclick="closeLearningDashboard(); setPracticeFilter('${exam.key}');" class="px-3.5 py-2 rounded-xl bg-purple-600/90 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1.5 transition">
+                <span>Luyện Đề Này</span>
+                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
+            </div>
+          `;
+        });
+        html += `</div>`;
+        container.innerHTML = html;
       } else {
         // Weakness tab
         const wrongs = fullDatabase.filter(q => practiceChecked[q.id] && !isQuestionCorrect(q.id, practiceAnswers[q.id]));
         if (wrongs.length === 0) {
           container.innerHTML = `
-            <div class="text-center py-8 text-slate-400 text-xs">
-              <i class="fa-solid fa-circle-check text-emerald-400 text-3xl mb-2"></i>
-              <p>Tuyệt vời! Hiện tại bạn không có câu nào làm sai.</p>
+            <div class="text-center py-12 text-slate-400 flex flex-col items-center gap-3">
+              <div class="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <div class="text-sm font-bold text-slate-200">Không Có Câu Nào Bị Sai!</div>
+              <p class="text-xs text-slate-400 max-w-sm">Tất cả các câu bạn đã làm đều trả lời chính xác, hoặc bạn chưa bắt đầu ôn tập. Tiếp tục phát huy nhé!</p>
             </div>
           `;
         } else {
-          let html = `<div class="flex flex-col gap-3">`;
-          wrongs.forEach((q, i) => {
-            html += `
-              <div class="p-3.5 rounded-xl bg-slate-800/80 border border-rose-500/40 text-xs flex flex-col gap-2">
-                <div class="flex justify-between font-bold text-rose-300">
-                  <span>Câu ${i + 1}: ${escapeHtml(q.title || 'Câu hỏi #' + q.id)}</span>
-                  <span class="text-slate-400">#${q.id}</span>
+          let html = `
+            <div class="flex flex-col gap-4">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                <div class="text-xs font-bold text-rose-300">
+                  <i class="fa-solid fa-triangle-exclamation mr-1.5"></i>
+                  <span>Tìm thấy ${wrongs.length} câu làm sai cần xem lại</span>
                 </div>
-                <div class="text-slate-300">${escapeHtml(q.scenario.slice(0, 150))}...</div>
+                <button onclick="closeLearningDashboard(); setPracticeFilter('wrong');" class="px-3 py-1.5 rounded-lg bg-rose-600/90 hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-1.5 transition">
+                  <i class="fa-solid fa-play text-[10px]"></i>
+                  <span>Luyện Tập Lọc Riêng ${wrongs.length} Câu Này</span>
+                </button>
+              </div>
+
+              <div class="flex flex-col gap-2.5 max-h-[50vh] overflow-y-auto custom-scroll pr-1">
+          `;
+
+          wrongs.forEach((q, i) => {
+            const shortScenario = (q.scenario || '').replace(/<[^>]*>/g, '').slice(0, 140);
+            html += `
+              <div class="p-3.5 rounded-xl bg-slate-800/80 border border-rose-500/30 hover:border-rose-500/60 text-xs flex flex-col gap-2 transition">
+                <div class="flex justify-between items-start gap-2">
+                  <span class="font-bold text-rose-300 line-clamp-1">#${q.id} - ${escapeHtml(q.title || 'Câu hỏi #' + q.id)}</span>
+                  <span class="px-2 py-0.5 rounded-md bg-slate-900 text-slate-400 text-[10px] font-mono whitespace-nowrap">${escapeHtml(q.topicName || '')}</span>
+                </div>
+                <div class="text-slate-300 text-[11px] leading-relaxed">${escapeHtml(shortScenario)}...</div>
+                <div class="flex justify-end pt-1">
+                  <button onclick="closeLearningDashboard(); jumpToSpecificQuestion(${q.id});" class="text-purple-400 hover:text-purple-300 text-xs font-semibold flex items-center gap-1">
+                    <span>Xem & làm lại câu này</span>
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                  </button>
+                </div>
               </div>
             `;
           });
-          html += `</div>`;
+
+          html += `
+              </div>
+            </div>
+          `;
           container.innerHTML = html;
         }
       }
