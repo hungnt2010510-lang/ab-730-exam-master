@@ -1,7 +1,7 @@
 {
-  "name": "AB-730 Exam Master • Cloud Sync",
-  "short_name": "AB-730 Exam",
-  "description": "Hệ Thống Mô Phỏng Thi Thật & Luyện Thi Microsoft AB-730 (86 Câu) hỗ trợ Cloud Sync PC & iPhone",
+  "name": "Exam Mock Test • Cloud Sync",
+  "short_name": "Exam Mock Test",
+  "description": "Hệ Thống Mô Phỏng Thi Thật & Luyện Thi Mock Test hỗ trợ Cloud Sync PC & Mobile",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
