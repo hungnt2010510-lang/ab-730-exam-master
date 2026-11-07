@@ -72,12 +72,33 @@
       -webkit-tap-highlight-color: transparent;
     }
     @media (max-width: 1023px) {
+      #desktopTopHeader,
+      #examSubheader,
+      #practiceSubheader,
+      #modeStatusBanner,
+      #desktopSidebar,
+      #desktopNavFooter {
+        display: none !important;
+      }
       main {
-        padding-bottom: 5.5rem !important;
+        padding: 0.5rem 0.75rem calc(5rem + env(safe-area-inset-bottom, 0px)) 0.75rem !important;
+        gap: 0.75rem !important;
+      }
+      .question-card-box {
+        padding: 0.875rem !important;
+        gap: 0.875rem !important;
+        min-height: auto !important;
       }
     }
     button, select {
       touch-action: manipulation;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .animate-slide-up {
+      animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
   </style>
 </head>
@@ -110,8 +131,39 @@
     </div>
   </div>
 
-  <!-- TOP HEADER -->
-  <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 lg:px-8 py-3 flex items-center justify-between flex-wrap gap-3">
+  <!-- MOBILE FOCUS TOP HEADER (SIÊU GỌN DÀNH RIÊNG CHO IPHONE / MOBILE) -->
+  <header id="mobileTopHeader" class="lg:hidden sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-3 py-2 flex items-center justify-between gap-2 shadow-md" style="padding-top: max(0.5rem, env(safe-area-inset-top, 0px));">
+    <!-- Nút Menu Chuyển Đề / Chế Độ Học -->
+    <button onclick="openMobileModePicker()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800 border border-slate-700/80 text-white text-xs font-bold active:scale-95 transition">
+      <i class="fa-solid fa-layer-group text-indigo-400"></i>
+      <span id="mobModeTitle" class="max-w-[130px] truncate">Đề Thi Thử 1</span>
+      <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-0.5"></i>
+    </button>
+
+    <!-- Ở Giữa: Số câu & Timer -->
+    <div class="flex items-center gap-1.5">
+      <!-- Exam Timer Badge (Chỉ hiện khi ở phòng thi) -->
+      <div id="mobTimerBadge" class="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-amber-300 font-mono text-xs font-bold">
+        <i class="fa-regular fa-clock text-amber-400 text-[11px]"></i>
+        <span id="mobTimerDisplay">45:00</span>
+      </div>
+
+      <!-- Quick Jump Button: Bấm vào mở Drawer chọn câu hỏi -->
+      <button onclick="openMobilePalette()" class="px-2.5 py-1 rounded-lg bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 text-xs font-bold flex items-center gap-1 active:scale-95 transition">
+        <span id="mobHeaderCounter">1/40</span>
+      </button>
+    </div>
+
+    <!-- Phía phải: Menu Cài đặt & Tiện ích -->
+    <div class="flex items-center gap-1.5">
+      <button onclick="openMobileSettingsDrawer()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 flex items-center justify-center transition border border-slate-700/80" title="Cài đặt & Tiện ích">
+        <i class="fa-solid fa-sliders text-xs"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- DESKTOP TOP HEADER (GIỮ NGUYÊN CHO MÁY TÍNH / LAPTOP) -->
+  <header id="desktopTopHeader" class="hidden lg:flex sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 lg:px-8 py-3 items-center justify-between flex-wrap gap-3">
     <!-- Logo & Title -->
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-purple-500/20 shrink-0">
@@ -307,7 +359,7 @@
       </div>
 
       <!-- Question Box Card -->
-      <div class="bg-slate-800/80 backdrop-blur rounded-2xl border border-slate-700/80 p-5 lg:p-7 shadow-xl flex flex-col gap-5 min-h-[460px]">
+      <div class="question-card-box bg-slate-800/80 backdrop-blur rounded-2xl border border-slate-700/80 p-5 lg:p-7 shadow-xl flex flex-col gap-5 min-h-[460px]">
         <!-- Topic Badge & Flag Bookmark Button -->
         <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
           <span id="topicBadge" class="text-xs font-bold px-2.5 py-1 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/30">
@@ -325,8 +377,8 @@
         </div>
       </div>
 
-      <!-- Question Navigation Footer -->
-      <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-800/60 border border-slate-700/80">
+      <!-- Question Navigation Footer (Chỉ cho Desktop, trên Mobile dùng MobileBottomNav) -->
+      <div id="desktopNavFooter" class="hidden lg:flex items-center justify-between p-3 rounded-2xl bg-slate-800/60 border border-slate-700/80">
         <button id="prevBtn" onclick="navPrev()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:hover:bg-slate-800 text-slate-200 text-xs font-bold flex items-center gap-2 transition">
           <i class="fa-solid fa-chevron-left"></i>
           <span>Câu Trước</span>
@@ -342,8 +394,8 @@
 
     </div>
 
-    <!-- RIGHT COLUMN: STATS & QUESTION PALETTE (4 Cols) -->
-    <div class="lg:col-span-4 flex flex-col gap-5">
+    <!-- RIGHT COLUMN: STATS & QUESTION PALETTE (4 Cols - Ẩn trên mobile để trang không bị kéo dài) -->
+    <div id="desktopSidebar" class="hidden lg:flex lg:col-span-4 flex-col gap-5">
 
       <!-- Progress Stats Summary Card -->
       <div class="bg-slate-800/80 backdrop-blur rounded-2xl border border-slate-700/80 p-5 shadow-xl flex flex-col gap-4">
@@ -566,22 +618,246 @@
   </div>
 
   <!-- MOBILE STICKY BOTTOM BAR (Tối ưu cho iPhone dùng 1 tay) -->
-  <div id="mobileBottomNav" class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-3 py-2.5 flex items-center justify-between gap-2 shadow-2xl" style="padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));">
-    <button id="mobPrevBtn" onclick="navPrev()" class="px-3.5 py-2.5 rounded-xl bg-slate-800 active:bg-slate-700 disabled:opacity-30 text-slate-200 text-xs font-bold flex items-center gap-1.5 border border-slate-700">
+  <div id="mobileBottomNav" class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-3 py-2 flex items-center justify-between gap-2 shadow-2xl" style="padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));">
+    <!-- Nút Trước -->
+    <button id="mobPrevBtn" onclick="navPrev()" class="px-3.5 py-2.5 rounded-xl bg-slate-800 active:bg-slate-700 disabled:opacity-30 text-slate-200 text-xs font-bold flex items-center gap-1.5 border border-slate-700 shrink-0">
       <i class="fa-solid fa-chevron-left"></i>
       <span>Trước</span>
     </button>
 
-    <button onclick="scrollToPaletteMobile()" class="flex-1 py-2.5 px-3 rounded-xl bg-slate-800/90 active:bg-slate-700 border border-indigo-500/40 text-xs font-bold text-indigo-300 flex items-center justify-center gap-2">
-      <i class="fa-solid fa-grip text-indigo-400"></i>
-      <span id="mobNavIndicator">Câu 1 / 40</span>
-      <span id="mobCloudMini" class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300">☁️ Sync</span>
+    <!-- Nút Đánh dấu câu hỏi (Flag) 1 chạm bằng ngón cái -->
+    <button id="mobFlagBtn" onclick="toggleCurrentFlag()" class="w-10 h-10 rounded-xl bg-slate-800 active:bg-slate-700 text-slate-400 border border-slate-700 flex items-center justify-center transition shrink-0" title="Đánh dấu câu hỏi để xem lại">
+      <i id="mobFlagIcon" class="fa-regular fa-bookmark text-sm"></i>
     </button>
 
-    <button id="mobNextBtn" onclick="navNext()" class="px-4 py-2.5 rounded-xl bg-indigo-600 active:bg-indigo-500 disabled:opacity-30 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-indigo-600/30">
+    <!-- Nút Bảng danh sách câu hỏi: Bấm vào mở Bottom Sheet trượt mượt mà -->
+    <button onclick="openMobilePalette()" class="flex-1 py-2.5 px-2 rounded-xl bg-slate-800/90 active:bg-slate-700 border border-indigo-500/40 text-xs font-bold text-indigo-300 flex items-center justify-center gap-1.5 truncate">
+      <i class="fa-solid fa-grip text-indigo-400 text-xs"></i>
+      <span id="mobNavIndicator" class="truncate font-mono">1 / 40</span>
+      <i class="fa-solid fa-chevron-up text-[10px] text-slate-400"></i>
+    </button>
+
+    <!-- Nút Tiếp -->
+    <button id="mobNextBtn" onclick="navNext()" class="px-4 py-2.5 rounded-xl bg-indigo-600 active:bg-indigo-500 disabled:opacity-30 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-indigo-600/30 shrink-0">
       <span>Tiếp</span>
       <i class="fa-solid fa-chevron-right"></i>
     </button>
+  </div>
+
+  <!-- BOTTOM SHEET 1: DANH SÁCH CÂU HỎI MOBILE (TRƯỢT TỪ DƯỚI LÊN) -->
+  <div id="mobilePaletteDrawer" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col justify-end" onclick="closeMobilePalette(event)">
+    <div class="bg-slate-900 border-t border-slate-700 rounded-t-3xl max-h-[85vh] w-full flex flex-col shadow-2xl animate-slide-up" onclick="event.stopPropagation()">
+      <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mt-3 mb-1"></div>
+
+      <div class="px-5 py-3 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-grip text-indigo-400"></i>
+          <h3 id="mobPaletteTitle" class="text-sm font-bold text-white">Danh Sách Câu Hỏi</h3>
+          <span id="mobPaletteFraction" class="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">0/40</span>
+        </div>
+        <button onclick="closeMobilePalette()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Mini Stats 3 Ô -->
+      <div class="px-5 pt-3 grid grid-cols-3 gap-2 text-center">
+        <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800">
+          <div id="mobStat1Num" class="text-base font-extrabold text-indigo-400">0</div>
+          <div id="mobStat1Label" class="text-[10px] text-slate-400">Đã Làm</div>
+        </div>
+        <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800">
+          <div id="mobStat2Num" class="text-base font-extrabold text-slate-300">40</div>
+          <div id="mobStat2Label" class="text-[10px] text-slate-400">Chưa Làm</div>
+        </div>
+        <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800">
+          <div id="mobStat3Num" class="text-base font-extrabold text-amber-400">0</div>
+          <div id="mobStat3Label" class="text-[10px] text-slate-400">Đánh Dấu</div>
+        </div>
+      </div>
+
+      <!-- Mini Legend -->
+      <div id="mobPaletteLegend" class="px-5 pt-2 flex items-center justify-center gap-3 text-[11px] text-slate-400 flex-wrap">
+        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-700"></span> Chưa làm</span>
+        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-indigo-600"></span> Đã làm</span>
+        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-amber-500"></span> Đánh dấu</span>
+      </div>
+
+      <!-- Grid Buttons -->
+      <div id="mobilePaletteGrid" class="px-5 py-3 grid grid-cols-5 gap-2.5 overflow-y-auto custom-scroll max-h-[45vh]">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- Bottom Action -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/60 flex flex-col gap-2">
+        <button id="mobPaletteBottomBtn" onclick="handlePaletteBottomAction(); closeMobilePalette();" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-extrabold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span>Nộp Bài Thi</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM SHEET 2: CHỌN ĐỀ THI & CHẾ ĐỘ HỌC (TRƯỢT TỪ DƯỚI LÊN) -->
+  <div id="mobileModePickerDrawer" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col justify-end" onclick="closeMobileModePicker(event)">
+    <div class="bg-slate-900 border-t border-slate-700 rounded-t-3xl max-h-[88vh] w-full flex flex-col shadow-2xl animate-slide-up" onclick="event.stopPropagation()">
+      <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mt-3 mb-1"></div>
+
+      <div class="px-5 py-3 border-b border-slate-800 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-layer-group text-indigo-400"></i>
+          <span>Chọn Bài Thi Hoặc Chế Độ Ôn</span>
+        </h3>
+        <button onclick="closeMobileModePicker()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-5 overflow-y-auto custom-scroll flex flex-col gap-4">
+        <!-- 2 TABS LỚN TRÊN MOBILE -->
+        <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
+          <button id="mobTabExamBtn" onclick="switchMainTab('exam'); closeMobileModePicker();" class="py-2.5 px-3 rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow">
+            <i class="fa-solid fa-trophy text-amber-300"></i>
+            <span>Thi Thử (40c)</span>
+          </button>
+          <button id="mobTabPracticeBtn" onclick="switchMainTab('practice'); closeMobileModePicker();" class="py-2.5 px-3 rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white">
+            <i class="fa-solid fa-book-open text-indigo-400"></i>
+            <span>Ôn Tập (86c)</span>
+          </button>
+        </div>
+
+        <!-- MỤC 1: CÁC ĐỀ THI THỬ -->
+        <div id="mobExamSection" class="flex flex-col gap-2">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-list-check text-emerald-400"></i> Chọn Đề Thi Chuẩn (40 Câu • 45 Phút)
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="selectMockExam('mock1'); closeMobileModePicker();" id="mobMockBtn-mock1" class="py-3 px-3 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow text-left flex items-center gap-2">
+              <i class="fa-solid fa-file-signature"></i> Đề Thi Thử 1
+            </button>
+            <button onclick="selectMockExam('mock2'); closeMobileModePicker();" id="mobMockBtn-mock2" class="py-3 px-3 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 text-left flex items-center gap-2">
+              <i class="fa-solid fa-file-signature"></i> Đề Thi Thử 2
+            </button>
+            <button onclick="selectMockExam('mock3'); closeMobileModePicker();" id="mobMockBtn-mock3" class="py-3 px-3 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 text-left flex items-center gap-2">
+              <i class="fa-solid fa-file-signature"></i> Đề Thi Thử 3
+            </button>
+            <button onclick="startNewRandomMockExam(); closeMobileModePicker();" id="mobMockBtn-mockRandom" class="py-3 px-3 rounded-xl text-xs font-bold bg-purple-950/80 border border-purple-500/40 text-purple-300 text-left flex items-center gap-2">
+              <i class="fa-solid fa-shuffle text-purple-400"></i> Đề Random Mới
+            </button>
+          </div>
+          <button onclick="resetCurrentMockExam(); closeMobileModePicker();" class="mt-1 py-2.5 px-3 rounded-xl bg-slate-950 border border-slate-800 text-rose-300 text-xs font-bold flex items-center justify-center gap-2">
+            <i class="fa-solid fa-rotate-right text-rose-400"></i> Xóa Trắng & Thi Lại Đề Này (Reset)
+          </button>
+        </div>
+
+        <!-- MỤC 2: CÁC BỘ ĐỀ ÔN TẬP -->
+        <div id="mobPracticeSection" class="hidden flex flex-col gap-2.5">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-sliders text-indigo-400"></i> Chế Độ Học & Ôn
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="setPracticeMode('practice'); closeMobileModePicker();" id="mobPracMode-practice" class="py-2.5 px-3 rounded-xl text-xs font-bold bg-indigo-600 text-white flex items-center justify-center gap-1.5 shadow">
+              <i class="fa-solid fa-bolt text-amber-300"></i> Tự Luyện Tập
+            </button>
+            <button onclick="setPracticeMode('study'); closeMobileModePicker();" id="mobPracMode-study" class="py-2.5 px-3 rounded-xl text-xs font-semibold bg-slate-800 border border-slate-700 text-slate-300 flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-book-open text-indigo-400"></i> Học Thuộc
+            </button>
+          </div>
+
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-1">Phạm Vi Ôn Tập:</div>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button onclick="switchPracticeFilter('all'); closeMobileModePicker();" id="mobPracBtn-all" class="py-2 px-2.5 rounded-lg font-bold bg-indigo-600 text-white text-left">Toàn Bộ (86 Câu)</button>
+            <button onclick="switchPracticeFilter('wrong'); closeMobileModePicker();" id="mobPracBtn-wrong" class="py-2 px-2.5 rounded-lg font-bold bg-rose-950/80 border border-rose-500/50 text-rose-300 text-left flex items-center justify-between">
+              <span>⚠️ Câu Làm Sai</span>
+              <span id="mobWrongBadgeCount" class="px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[10px]">0</span>
+            </button>
+            <button onclick="switchPracticeFilter('topic1'); closeMobileModePicker();" id="mobPracBtn-topic1" class="py-2 px-2.5 rounded-lg font-semibold bg-slate-800 text-slate-300 text-left">Topic 1 (25c)</button>
+            <button onclick="switchPracticeFilter('topic2'); closeMobileModePicker();" id="mobPracBtn-topic2" class="py-2 px-2.5 rounded-lg font-semibold bg-slate-800 text-slate-300 text-left">Topic 2 (40c)</button>
+            <button onclick="switchPracticeFilter('topic3'); closeMobileModePicker();" id="mobPracBtn-topic3" class="py-2 px-2.5 rounded-lg font-semibold bg-slate-800 text-slate-300 text-left">Topic 3 (21c)</button>
+            <button onclick="switchPracticeFilter('de1'); closeMobileModePicker();" id="mobPracBtn-de1" class="py-2 px-2.5 rounded-lg font-semibold bg-slate-800 text-slate-300 text-left">Đề 1 (1-20)</button>
+            <button onclick="switchPracticeFilter('de2'); closeMobileModePicker();" id="mobPracBtn-de2" class="py-2 px-2.5 rounded-lg font-semibold bg-slate-800 text-slate-300 text-left">Đề 2 (21-40)</button>
+            <button onclick="switchPracticeFilter('de3'); closeMobileModePicker();" id="mobPracBtn-de3" class="py-2 px-2.5 rounded-lg font-semibold bg-slate-800 text-slate-300 text-left">Đề 3 (41-60)</button>
+            <button onclick="switchPracticeFilter('de4'); closeMobileModePicker();" id="mobPracBtn-de4" class="py-2 px-2.5 rounded-lg font-semibold bg-slate-800 text-slate-300 text-left">Đề 4 (61-80)</button>
+            <button onclick="switchPracticeFilter('de5'); closeMobileModePicker();" id="mobPracBtn-de5" class="py-2 px-2.5 rounded-lg font-semibold bg-slate-800 text-slate-300 text-left">Đề 5 (81-86)</button>
+          </div>
+          <button onclick="promptResetPractice(); closeMobileModePicker();" class="mt-1 py-2.5 px-3 rounded-xl bg-slate-950 border border-slate-800 text-rose-300 text-xs font-bold flex items-center justify-center gap-2">
+            <i class="fa-solid fa-rotate-right text-rose-400"></i> Reset Luyện Tập (Làm Lại)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM SHEET 3: CÀI ĐẶT & TIỆN ÍCH MOBILE -->
+  <div id="mobileSettingsDrawer" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col justify-end" onclick="closeMobileSettingsDrawer(event)">
+    <div class="bg-slate-900 border-t border-slate-700 rounded-t-3xl max-h-[85vh] w-full flex flex-col shadow-2xl animate-slide-up" onclick="event.stopPropagation()">
+      <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mt-3 mb-1"></div>
+
+      <div class="px-5 py-3 border-b border-slate-800 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-indigo-400"></i>
+          <span>Cài Đặt & Tiện Ích</span>
+        </h3>
+        <button onclick="closeMobileSettingsDrawer()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-5 overflow-y-auto custom-scroll flex flex-col gap-3">
+        <!-- Cloud Sync Card -->
+        <button onclick="openCloudSyncModal(); closeMobileSettingsDrawer();" class="w-full p-3.5 rounded-2xl bg-sky-950/60 border border-sky-500/40 text-left flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-lg">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-sky-200">Đồng Bộ Đám Mây (Cloud Sync)</div>
+              <div class="text-[11px] text-slate-400">Tự động đồng bộ với PC & iPhone</div>
+            </div>
+          </div>
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        </button>
+
+        <!-- Dashboard Tiến Độ 86 Câu -->
+        <button onclick="openLearningDashboard(); closeMobileSettingsDrawer();" class="w-full p-3.5 rounded-2xl bg-purple-950/60 border border-purple-500/40 text-left flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-purple-200">Dashboard Tiến Độ 86 Câu</div>
+            <div class="text-[11px] text-slate-400">Thống kê theo 3 topic & độ sẵn sàng</div>
+          </div>
+        </button>
+
+        <!-- Xem cả đề cuộn -->
+        <button onclick="openAllInOneReview(); closeMobileSettingsDrawer();" class="w-full p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 text-left flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-book-open-reader"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-amber-200">Xem Lời Giải Cả Bộ Đề</div>
+            <div class="text-[11px] text-slate-400">Trang cuộn 86 câu hỏi kèm đáp án</div>
+          </div>
+        </button>
+
+        <!-- Đổi Theme & Sao lưu -->
+        <div class="grid grid-cols-2 gap-2 pt-2">
+          <button onclick="toggleDarkMode()" class="p-3 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-sun text-amber-400"></i>
+            <span>Sáng / Tối</span>
+          </button>
+          <button onclick="exportBackupJson()" class="p-3 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-emerald-300 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-floppy-disk text-emerald-400"></i>
+            <span>Sao Lưu File</span>
+          </button>
+        </div>
+
+        <button onclick="document.getElementById('headerFileInput').click(); closeMobileSettingsDrawer();" class="p-3 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-indigo-300 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-file-import text-indigo-400"></i>
+          <span>Nạp Dữ Liệu Từ File JSON</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL: CLOUD SYNC & IPHONE GUIDE -->
@@ -725,32 +1001,46 @@
       const bannerResetBtn = document.getElementById('bannerResetBtn');
       const paletteResetBtn = document.getElementById('paletteResetPracBtn');
 
+      // Mobile Mode Picker Tabs & Sections
+      const mobTabExamBtn = document.getElementById('mobTabExamBtn');
+      const mobTabPracBtn = document.getElementById('mobTabPracticeBtn');
+      const mobExamSec = document.getElementById('mobExamSection');
+      const mobPracSec = document.getElementById('mobPracticeSection');
+      const mobTimerBadge = document.getElementById('mobTimerBadge');
+
       if (tab === 'exam') {
-        examTabBtn.className = 'px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/20';
-        pracTabBtn.className = 'px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800/80';
-        examSub.classList.remove('hidden');
-        examSub.classList.add('flex');
-        pracSub.classList.add('hidden');
-        pracSub.classList.remove('flex');
-        bannerResetBtn.classList.add('hidden');
-        paletteResetBtn.classList.add('hidden');
-        paletteResetBtn.classList.remove('flex');
+        if (examTabBtn) examTabBtn.className = 'px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/20';
+        if (pracTabBtn) pracTabBtn.className = 'px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800/80';
+        if (examSub) { examSub.classList.remove('hidden'); examSub.classList.add('flex'); }
+        if (pracSub) { pracSub.classList.add('hidden'); pracSub.classList.remove('flex'); }
+        if (bannerResetBtn) bannerResetBtn.classList.add('hidden');
+        if (paletteResetBtn) { paletteResetBtn.classList.add('hidden'); paletteResetBtn.classList.remove('flex'); }
+
+        // Mobile drawer sync
+        if (mobTabExamBtn) mobTabExamBtn.className = 'py-2.5 px-3 rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow';
+        if (mobTabPracBtn) mobTabPracBtn.className = 'py-2.5 px-3 rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white';
+        if (mobExamSec) mobExamSec.classList.remove('hidden');
+        if (mobPracSec) mobPracSec.classList.add('hidden');
+        if (mobTimerBadge) mobTimerBadge.classList.remove('hidden');
 
         // Resume timer if not submitted
         if (!examSubmitted[activeMockKey]) {
           startExamTimer();
         }
       } else {
-        pracTabBtn.className = 'px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/20';
-        examTabBtn.className = 'px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800/80';
-        pracSub.classList.remove('hidden');
-        pracSub.classList.add('flex');
-        examSub.classList.add('hidden');
-        examSub.classList.remove('flex');
-        bannerResetBtn.classList.remove('hidden');
-        bannerResetBtn.classList.add('flex');
-        paletteResetBtn.classList.remove('hidden');
-        paletteResetBtn.classList.add('flex');
+        if (pracTabBtn) pracTabBtn.className = 'px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/20';
+        if (examTabBtn) examTabBtn.className = 'px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800/80';
+        if (pracSub) { pracSub.classList.remove('hidden'); pracSub.classList.add('flex'); }
+        if (examSub) { examSub.classList.add('hidden'); examSub.classList.remove('flex'); }
+        if (bannerResetBtn) { bannerResetBtn.classList.remove('hidden'); bannerResetBtn.classList.add('flex'); }
+        if (paletteResetBtn) { paletteResetBtn.classList.remove('hidden'); paletteResetBtn.classList.add('flex'); }
+
+        // Mobile drawer sync
+        if (mobTabPracBtn) mobTabPracBtn.className = 'py-2.5 px-3 rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow';
+        if (mobTabExamBtn) mobTabExamBtn.className = 'py-2.5 px-3 rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white';
+        if (mobPracSec) mobPracSec.classList.remove('hidden');
+        if (mobExamSec) mobExamSec.classList.add('hidden');
+        if (mobTimerBadge) mobTimerBadge.classList.add('hidden');
 
         // Pause timer while studying
         pauseExamTimer();
@@ -847,6 +1137,9 @@
       const prevBtn = document.getElementById('prevBtn');
       const nextBtn = document.getElementById('nextBtn');
 
+      const mobModeTitle = document.getElementById('mobModeTitle');
+      const mobHeaderCounter = document.getElementById('mobHeaderCounter');
+
       if (currentMainTab === 'exam') {
         const isSub = examSubmitted[activeMockKey];
         if (isSub) {
@@ -860,6 +1153,11 @@
         }
         counterEl.innerText = `Câu ${currIdx + 1} / ${questions.length}`;
         navIndicator.innerText = `${currIdx + 1} / ${questions.length}`;
+
+        if (mobModeTitle) {
+          const examNames = { mock1: 'Đề Thi Thử 1', mock2: 'Đề Thi Thử 2', mock3: 'Đề Thi Thử 3', mockRandom: 'Đề Random Mới' };
+          mobModeTitle.innerText = examNames[activeMockKey] || 'Phòng Thi Thử';
+        }
       } else {
         bannerBadge.className = 'px-2.5 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold';
         bannerBadge.innerText = practiceMode === 'practice' ? 'TỰ LUYỆN TẬP' : 'HỌC THUỘC (FLASHCARD)';
@@ -878,6 +1176,26 @@
         bannerTitle.innerText = filterNames[practiceFilter] || 'Luyện Tập AB-730';
         counterEl.innerText = `Câu ${currIdx + 1} / ${questions.length}`;
         navIndicator.innerText = `${currIdx + 1} / ${questions.length}`;
+
+        if (mobModeTitle) {
+          const mobFilterNames = {
+            'all': '86 Câu Ôn Tập',
+            'wrong': 'Câu Làm Sai',
+            'topic1': 'Topic 1: Nền Tảng',
+            'topic2': 'Topic 2: Prompting',
+            'topic3': 'Topic 3: Soạn Thảo',
+            'de1': 'Đề 1 (1-20)',
+            'de2': 'Đề 2 (21-40)',
+            'de3': 'Đề 3 (41-60)',
+            'de4': 'Đề 4 (61-80)',
+            'de5': 'Đề 5 (81-86)'
+          };
+          mobModeTitle.innerText = mobFilterNames[practiceFilter] || 'Ôn Tập AB-730';
+        }
+      }
+
+      if (mobHeaderCounter) {
+        mobHeaderCounter.innerText = `${currIdx + 1}/${questions.length}`;
       }
 
       prevBtn.disabled = (currIdx === 0);
@@ -929,16 +1247,23 @@
         topicBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-pink-500/20 text-pink-300 border border-pink-500/30';
       }
 
-      // Flag button update
+      // Flag button update (Cả Desktop và Mobile)
       const flagBtn = document.getElementById('flagBtn');
       const flagIcon = document.getElementById('flagIcon');
+      const mobFlagBtn = document.getElementById('mobFlagBtn');
+      const mobFlagIcon = document.getElementById('mobFlagIcon');
       const isFlagged = currentMainTab === 'exam' ? examFlags[activeMockKey].has(q.id) : practiceFlags.has(q.id);
+
       if (isFlagged) {
-        flagBtn.className = 'px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-semibold flex items-center gap-1.5 transition';
-        flagIcon.className = 'fa-solid fa-bookmark text-amber-400';
+        if (flagBtn) flagBtn.className = 'px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-semibold flex items-center gap-1.5 transition';
+        if (flagIcon) flagIcon.className = 'fa-solid fa-bookmark text-amber-400';
+        if (mobFlagBtn) mobFlagBtn.className = 'w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center transition shrink-0';
+        if (mobFlagIcon) mobFlagIcon.className = 'fa-solid fa-bookmark text-sm text-amber-400';
       } else {
-        flagBtn.className = 'px-2.5 py-1 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-xs font-medium text-slate-300 flex items-center gap-1.5 transition';
-        flagIcon.className = 'fa-regular fa-bookmark';
+        if (flagBtn) flagBtn.className = 'px-2.5 py-1 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-xs font-medium text-slate-300 flex items-center gap-1.5 transition';
+        if (flagIcon) flagIcon.className = 'fa-regular fa-bookmark';
+        if (mobFlagBtn) mobFlagBtn.className = 'w-10 h-10 rounded-xl bg-slate-800 active:bg-slate-700 text-slate-400 border border-slate-700 flex items-center justify-center transition shrink-0';
+        if (mobFlagIcon) mobFlagIcon.className = 'fa-regular fa-bookmark text-sm';
       }
 
       // CRITICAL LOGIC: CHECK WHETHER TO REVEAL GREEN/RED ANSWERS
@@ -1289,37 +1614,57 @@
       renderView();
     }
 
-    // 12. RENDER PALETTE
+    // 12. RENDER PALETTE (DESKTOP + MOBILE DRAWER)
     function renderPalette() {
       const questions = getActiveQuestions();
       const currIdx = getCurrentIndex();
       const grid = document.getElementById('paletteGrid');
+      const mobGrid = document.getElementById('mobilePaletteGrid');
       const paletteTitle = document.getElementById('paletteTitle');
+      const mobPaletteTitle = document.getElementById('mobPaletteTitle');
       const paletteLegend = document.getElementById('paletteLegend');
+      const mobPaletteLegend = document.getElementById('mobPaletteLegend');
       const bottomBtn = document.getElementById('paletteBottomBtn');
+      const mobBottomBtn = document.getElementById('mobPaletteBottomBtn');
 
       if (currentMainTab === 'exam') {
-        paletteTitle.innerText = `Tiến Độ Bài Thi (${questions.length} Câu)`;
+        const titleText = `Tiến Độ Bài Thi (${questions.length} Câu)`;
+        if (paletteTitle) paletteTitle.innerText = titleText;
+        if (mobPaletteTitle) mobPaletteTitle.innerText = titleText;
+
         const isSub = examSubmitted[activeMockKey];
 
+        const legendExamSub = `
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-emerald-600"></span> Đúng</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-rose-600"></span> Sai / Chưa làm</span>
+        `;
+        const legendExamActive = `
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-slate-700"></span> Chưa làm</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-indigo-600"></span> Đã làm</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-amber-500"></span> Đánh dấu</span>
+        `;
+
         if (isSub) {
-          paletteLegend.innerHTML = `
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-emerald-600"></span> Đúng</span>
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-rose-600"></span> Sai / Chưa làm</span>
-          `;
-          bottomBtn.className = "w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center justify-center gap-2 transition";
-          bottomBtn.innerHTML = '<i class="fa-solid fa-rotate-right text-rose-400"></i><span>Thi Lại Đề Này (Reset)</span>';
+          if (paletteLegend) paletteLegend.innerHTML = legendExamSub;
+          if (mobPaletteLegend) mobPaletteLegend.innerHTML = legendExamSub;
+
+          const resetClass = "w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center justify-center gap-2 transition";
+          const resetHtml = '<i class="fa-solid fa-rotate-right text-rose-400"></i><span>Thi Lại Đề Này (Reset)</span>';
+          if (bottomBtn) { bottomBtn.className = resetClass; bottomBtn.innerHTML = resetHtml; }
+          if (mobBottomBtn) { mobBottomBtn.className = resetClass; mobBottomBtn.innerHTML = resetHtml; }
         } else {
-          paletteLegend.innerHTML = `
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-slate-700"></span> Chưa làm</span>
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-indigo-600"></span> Đã làm</span>
-            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-amber-500"></span> Đánh dấu</span>
-          `;
-          bottomBtn.className = "w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition";
-          bottomBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i><span>Nộp Bài Thi</span>';
+          if (paletteLegend) paletteLegend.innerHTML = legendExamActive;
+          if (mobPaletteLegend) mobPaletteLegend.innerHTML = legendExamActive;
+
+          const submitClass = "w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition";
+          const submitHtml = '<i class="fa-solid fa-paper-plane"></i><span>Nộp Bài Thi</span>';
+          if (bottomBtn) { bottomBtn.className = submitClass; bottomBtn.innerHTML = submitHtml; }
+          if (mobBottomBtn) { mobBottomBtn.className = submitClass; mobBottomBtn.innerHTML = submitHtml; }
         }
 
         let html = '';
+        let mobHtml = '';
+
         questions.forEach((q, idx) => {
           const ans = examAnswers[activeMockKey][q.id];
           const isAns = isQuestionAnswered(q, ans);
@@ -1329,7 +1674,6 @@
           let btnClass = "h-9 rounded-xl font-bold text-xs flex items-center justify-center transition relative ";
 
           if (isSub) {
-            // Submitted: color by correct/wrong
             const isCor = isQuestionCorrect(q.id, ans);
             if (isAns && isCor) {
               btnClass += "bg-emerald-600 text-white ";
@@ -1337,7 +1681,6 @@
               btnClass += "bg-rose-900/80 text-rose-200 border border-rose-500/50 ";
             }
           } else {
-            // Active exam: ONLY ANSWERED (INDIGO) OR UNANSWERED (SLATE)
             if (isAns) {
               btnClass += "bg-indigo-600 text-white shadow ";
             } else {
@@ -1348,27 +1691,48 @@
           if (isFlag) btnClass += "ring-2 ring-amber-400 ";
           if (isCurrent) btnClass += "ring-2 ring-white scale-105 shadow-lg ";
 
+          const flagDot = isFlag ? '<span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full"></span>' : '';
+
           html += `
             <button onclick="jumpToQuestion(${idx})" class="${btnClass}">
               ${idx + 1}
-              ${isFlag ? '<span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full"></span>' : ''}
+              ${flagDot}
+            </button>
+          `;
+
+          mobHtml += `
+            <button onclick="jumpToQuestion(${idx}); closeMobilePalette();" class="${btnClass}">
+              ${idx + 1}
+              ${flagDot}
             </button>
           `;
         });
-        grid.innerHTML = html;
+
+        if (grid) grid.innerHTML = html;
+        if (mobGrid) mobGrid.innerHTML = mobHtml;
 
       } else {
         // IN PRACTICE OR STUDY MODE
-        paletteTitle.innerText = `Tiến Độ Ôn Tập (${questions.length} Câu)`;
-        paletteLegend.innerHTML = `
+        const titleText = `Tiến Độ Ôn Tập (${questions.length} Câu)`;
+        if (paletteTitle) paletteTitle.innerText = titleText;
+        if (mobPaletteTitle) mobPaletteTitle.innerText = titleText;
+
+        const legendPrac = `
           <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-emerald-600"></span> Đã đúng</span>
           <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-rose-600"></span> Chưa đúng</span>
           <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-slate-700"></span> Chưa học</span>
         `;
-        bottomBtn.className = "w-full py-2.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-300 text-xs font-bold flex items-center justify-center gap-2 transition";
-        bottomBtn.innerHTML = '<i class="fa-solid fa-chart-line text-purple-400"></i><span>Mở Dashboard Tiến Độ</span>';
+        if (paletteLegend) paletteLegend.innerHTML = legendPrac;
+        if (mobPaletteLegend) mobPaletteLegend.innerHTML = legendPrac;
+
+        const dashClass = "w-full py-2.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-300 text-xs font-bold flex items-center justify-center gap-2 transition";
+        const dashHtml = '<i class="fa-solid fa-chart-line text-purple-400"></i><span>Mở Dashboard Tiến Độ</span>';
+        if (bottomBtn) { bottomBtn.className = dashClass; bottomBtn.innerHTML = dashHtml; }
+        if (mobBottomBtn) { mobBottomBtn.className = dashClass; mobBottomBtn.innerHTML = dashHtml; }
 
         let html = '';
+        let mobHtml = '';
+
         questions.forEach((q, idx) => {
           const ans = practiceAnswers[q.id];
           const isChk = (practiceMode === 'study') || (practiceChecked[q.id] === true);
@@ -1385,7 +1749,6 @@
               btnClass += "bg-rose-900/80 text-rose-200 border border-rose-500/50 ";
             }
           } else if (isQuestionAnswered(q, ans)) {
-            // Answered but not yet checked
             btnClass += "bg-indigo-600 text-white ";
           } else {
             btnClass += "bg-slate-800 text-slate-400 hover:bg-slate-700 ";
@@ -1394,14 +1757,25 @@
           if (isFlag) btnClass += "ring-2 ring-amber-400 ";
           if (isCurrent) btnClass += "ring-2 ring-white scale-105 shadow-lg ";
 
+          const flagDot = isFlag ? '<span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full"></span>' : '';
+
           html += `
             <button onclick="jumpToQuestion(${idx})" class="${btnClass}">
               ${idx + 1}
-              ${isFlag ? '<span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full"></span>' : ''}
+              ${flagDot}
+            </button>
+          `;
+
+          mobHtml += `
+            <button onclick="jumpToQuestion(${idx}); closeMobilePalette();" class="${btnClass}">
+              ${idx + 1}
+              ${flagDot}
             </button>
           `;
         });
-        grid.innerHTML = html;
+
+        if (grid) grid.innerHTML = html;
+        if (mobGrid) mobGrid.innerHTML = mobHtml;
       }
     }
 
@@ -1425,9 +1799,17 @@
       let b1 = 0, b2 = 0, b3 = 0;
 
       if (currentMainTab === 'exam') {
-        document.getElementById('statBox1Label').innerText = 'Đã Làm';
-        document.getElementById('statBox2Label').innerText = 'Chưa Làm';
-        document.getElementById('statBox3Label').innerText = 'Đánh Dấu';
+        const l1 = 'Đã Làm', l2 = 'Chưa Làm', l3 = 'Đánh Dấu';
+        document.getElementById('statBox1Label').innerText = l1;
+        document.getElementById('statBox2Label').innerText = l2;
+        document.getElementById('statBox3Label').innerText = l3;
+
+        const mLabel1 = document.getElementById('mobStat1Label');
+        const mLabel2 = document.getElementById('mobStat2Label');
+        const mLabel3 = document.getElementById('mobStat3Label');
+        if (mLabel1) mLabel1.innerText = l1;
+        if (mLabel2) mLabel2.innerText = l2;
+        if (mLabel3) mLabel3.innerText = l3;
 
         questions.forEach(q => {
           const ans = examAnswers[activeMockKey][q.id];
@@ -1443,10 +1825,27 @@
         const pct = total > 0 ? (b1 / total) * 100 : 0;
         document.getElementById('progressBar').style.width = pct + '%';
 
+        const mNum1 = document.getElementById('mobStat1Num');
+        const mNum2 = document.getElementById('mobStat2Num');
+        const mNum3 = document.getElementById('mobStat3Num');
+        const mFrac = document.getElementById('mobPaletteFraction');
+        if (mNum1) mNum1.innerText = b1;
+        if (mNum2) mNum2.innerText = b2;
+        if (mNum3) mNum3.innerText = b3;
+        if (mFrac) mFrac.innerText = `${b1}/${total}`;
+
       } else {
-        document.getElementById('statBox1Label').innerText = 'Đã Đúng';
-        document.getElementById('statBox2Label').innerText = 'Làm Sai';
-        document.getElementById('statBox3Label').innerText = 'Chưa Học';
+        const l1 = 'Đã Đúng', l2 = 'Làm Sai', l3 = 'Chưa Học';
+        document.getElementById('statBox1Label').innerText = l1;
+        document.getElementById('statBox2Label').innerText = l2;
+        document.getElementById('statBox3Label').innerText = l3;
+
+        const mLabel1 = document.getElementById('mobStat1Label');
+        const mLabel2 = document.getElementById('mobStat2Label');
+        const mLabel3 = document.getElementById('mobStat3Label');
+        if (mLabel1) mLabel1.innerText = l1;
+        if (mLabel2) mLabel2.innerText = l2;
+        if (mLabel3) mLabel3.innerText = l3;
 
         questions.forEach(q => {
           const ans = practiceAnswers[q.id];
@@ -1466,6 +1865,15 @@
         const pct = total > 0 ? (b1 / total) * 100 : 0;
         document.getElementById('progressBar').style.width = pct + '%';
 
+        const mNum1 = document.getElementById('mobStat1Num');
+        const mNum2 = document.getElementById('mobStat2Num');
+        const mNum3 = document.getElementById('mobStat3Num');
+        const mFrac = document.getElementById('mobPaletteFraction');
+        if (mNum1) mNum1.innerText = b1;
+        if (mNum2) mNum2.innerText = b2;
+        if (mNum3) mNum3.innerText = b3;
+        if (mFrac) mFrac.innerText = `${b1}/${total}`;
+
         // Update wrong badge count
         const totalWrong = fullDatabase.filter(q => {
           const ans = practiceAnswers[q.id];
@@ -1473,6 +1881,8 @@
         }).length;
         const wb = document.getElementById('wrongBadgeCount');
         if (wb) wb.innerText = totalWrong;
+        const mwb = document.getElementById('mobWrongBadgeCount');
+        if (mwb) mwb.innerText = totalWrong;
 
         // Update dash cover badge
         const totalPracticed = fullDatabase.filter(q => practiceChecked[q.id]).length;
@@ -1489,10 +1899,19 @@
         if (b) {
           b.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-700 hover:bg-slate-600 text-slate-300 flex items-center gap-1.5';
         }
+        const mb = document.getElementById('mobMockBtn-' + k);
+        if (mb) {
+          mb.className = 'p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-left border border-slate-700/60 flex items-center justify-between transition';
+        }
       });
+
       const ab = document.getElementById('mockBtn-' + mockKey);
       if (ab) {
         ab.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-emerald-600 text-white shadow-md flex items-center gap-1.5';
+      }
+      const mab = document.getElementById('mobMockBtn-' + mockKey);
+      if (mab) {
+        mab.className = 'p-3 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 text-left border border-emerald-500/60 flex items-center justify-between transition shadow-md';
       }
 
       // Start timer if not submitted
@@ -1500,7 +1919,10 @@
         startExamTimer();
       } else {
         pauseExamTimer();
-        document.getElementById('timerDisplay').innerText = 'ĐÃ NỘP';
+        const td = document.getElementById('timerDisplay');
+        if (td) td.innerText = 'ĐÃ NỘP';
+        const mtd = document.getElementById('mobTimerDisplay');
+        if (mtd) mtd.innerText = 'ĐÃ NỘP';
       }
 
       renderView();
@@ -1663,13 +2085,22 @@ Toàn bộ câu trả lời của đề này sẽ được xóa trắng để b�
       practiceFilter = filter;
       currentPracticeIndex = 0;
 
-      // Update button styles
+      // Update button styles (Desktop)
       document.querySelectorAll('#practiceSubheader button[id^="pracBtn-"]').forEach(b => {
         b.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-300';
       });
       const ab = document.getElementById('pracBtn-' + filter);
       if (ab) {
         ab.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white shadow';
+      }
+
+      // Update button styles (Mobile Drawer)
+      document.querySelectorAll('button[id^="mobPracBtn-"]').forEach(b => {
+        b.className = 'p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-left border border-slate-700/60 transition';
+      });
+      const mab = document.getElementById('mobPracBtn-' + filter);
+      if (mab) {
+        mab.className = 'p-2.5 rounded-xl bg-indigo-950/60 hover:bg-indigo-900/60 text-left border border-indigo-500/60 transition shadow-sm';
       }
 
       renderView();
@@ -1680,14 +2111,20 @@ Toàn bộ câu trả lời của đề này sẽ được xóa trắng để b�
       practiceMode = mode;
       const pmPractice = document.getElementById('pracMode-practice');
       const pmStudy = document.getElementById('pracMode-study');
+      const mobPmPractice = document.getElementById('mobPracMode-practice');
+      const mobPmStudy = document.getElementById('mobPracMode-study');
 
       if (mode === 'practice') {
-        pmPractice.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-indigo-600 text-white flex items-center gap-1.5 shadow';
-        pmStudy.className = 'px-3 py-1 rounded-xl text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-300 flex items-center gap-1.5';
+        if (pmPractice) pmPractice.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-indigo-600 text-white flex items-center gap-1.5 shadow';
+        if (pmStudy) pmStudy.className = 'px-3 py-1 rounded-xl text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-300 flex items-center gap-1.5';
+        if (mobPmPractice) mobPmPractice.className = 'p-3 rounded-xl bg-indigo-600 text-white font-bold text-xs flex flex-col items-center gap-1 shadow-md';
+        if (mobPmStudy) mobPmStudy.className = 'p-3 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium text-xs flex flex-col items-center gap-1 border border-slate-700';
         showToast('Chế độ Tự Luyện Tập: Hãy tự chọn đáp án rồi bấm [Kiểm Tra Đáp Án] nhé.');
       } else {
-        pmStudy.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 shadow';
-        pmPractice.className = 'px-3 py-1 rounded-xl text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-300 flex items-center gap-1.5';
+        if (pmStudy) pmStudy.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-purple-600 text-white flex items-center gap-1.5 shadow';
+        if (pmPractice) pmPractice.className = 'px-3 py-1 rounded-xl text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-300 flex items-center gap-1.5';
+        if (mobPmStudy) mobPmStudy.className = 'p-3 rounded-xl bg-purple-600 text-white font-bold text-xs flex flex-col items-center gap-1 shadow-md';
+        if (mobPmPractice) mobPmPractice.className = 'p-3 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium text-xs flex flex-col items-center gap-1 border border-slate-700';
         showToast('Chế độ Học Thuộc: Đang hiển thị sẵn đáp án chuẩn và lời giải chi tiết.');
       }
 
@@ -1810,15 +2247,124 @@ Toàn bộ câu trả lời của đề này sẽ được xóa trắng để b�
       const t = examTimeRemaining[activeMockKey];
       const m = Math.floor(t / 60);
       const s = t % 60;
+      const str = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      const isUrgent = t <= 300;
+
       const el = document.getElementById('timerDisplay');
       if (el) {
-        el.innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-        if (t <= 300) {
-          el.className = 'text-rose-400 font-bold animate-pulse';
-        } else {
-          el.className = 'text-amber-300 font-bold';
-        }
+        el.innerText = str;
+        el.className = isUrgent ? 'text-rose-400 font-bold animate-pulse' : 'text-amber-300 font-bold';
       }
+
+      const mel = document.getElementById('mobTimerDisplay');
+      if (mel) {
+        mel.innerText = str;
+        mel.className = isUrgent ? 'text-rose-400 font-bold animate-pulse' : 'text-amber-300 font-bold';
+      }
+    }
+
+    // MOBILE DRAWERS & INTERACTIVE CONTROLS
+    function openMobilePalette() {
+      const d = document.getElementById('mobilePaletteDrawer');
+      if (d) {
+        d.classList.remove('hidden');
+        renderPalette();
+      }
+    }
+
+    function closeMobilePalette() {
+      const d = document.getElementById('mobilePaletteDrawer');
+      if (d) d.classList.add('hidden');
+    }
+
+    function openMobileModePicker() {
+      const d = document.getElementById('mobileModeDrawer');
+      if (d) d.classList.remove('hidden');
+    }
+
+    function closeMobileModePicker() {
+      const d = document.getElementById('mobileModeDrawer');
+      if (d) d.classList.add('hidden');
+    }
+
+    function openMobileSettingsDrawer() {
+      const d = document.getElementById('mobileSettingsDrawer');
+      if (d) d.classList.remove('hidden');
+    }
+
+    function closeMobileSettingsDrawer() {
+      const d = document.getElementById('mobileSettingsDrawer');
+      if (d) d.classList.add('hidden');
+    }
+
+    function setMobileFontSize(size) {
+      const container = document.getElementById('questionContainer');
+      localStorage.setItem('ab730_font_size', size);
+
+      const sizes = ['sm', 'base', 'lg'];
+      sizes.forEach(s => {
+        const btn = document.getElementById('fontBtn-' + s);
+        if (btn) {
+          if (s === size) {
+            btn.className = 'py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow';
+          } else {
+            btn.className = 'py-2 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700';
+          }
+        }
+      });
+
+      if (container) {
+        container.classList.remove('text-sm', 'text-base', 'text-lg', 'text-xl');
+        if (size === 'sm') container.classList.add('text-sm');
+        else if (size === 'base') container.classList.add('text-base');
+        else if (size === 'lg') container.classList.add('text-lg');
+      }
+      showToast(`Đã đổi cỡ chữ: ${size === 'sm' ? 'Nhỏ' : size === 'lg' ? 'Lớn' : 'Vừa'}`);
+    }
+
+    function applyStoredFontSize() {
+      const saved = localStorage.getItem('ab730_font_size') || 'base';
+      setMobileFontSize(saved);
+    }
+
+    // Touch Swipe Gestures for Mobile (Next / Prev Question)
+    function initMobileSwipeGestures() {
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchEndX = 0;
+      let touchEndY = 0;
+
+      const mainArea = document.getElementById('mainContentArea');
+      if (!mainArea) return;
+
+      mainArea.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches.length === 1) {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        }
+      }, { passive: true });
+
+      mainArea.addEventListener('touchend', (e) => {
+        if (!e.changedTouches || e.changedTouches.length === 0) return;
+        touchEndX = e.changedTouches[0].clientX;
+        touchEndY = e.changedTouches[0].clientY;
+
+        const diffX = touchEndX - touchStartX;
+        const diffY = touchEndY - touchStartY;
+
+        // If horizontal swipe is dominant and > 65px
+        if (Math.abs(diffX) > 65 && Math.abs(diffX) > Math.abs(diffY) * 1.8) {
+          // Check if user is interacting with an open modal or drawer
+          const activeDrawers = document.querySelectorAll('#mobilePaletteDrawer:not(.hidden), #mobileModeDrawer:not(.hidden), #mobileSettingsDrawer:not(.hidden), #examResultModal:not(.hidden), #learningDashboardModal:not(.hidden)');
+          if (activeDrawers.length > 0) return;
+
+          if (diffX < 0) {
+            navNext();
+          } else {
+            navPrev();
+          }
+        }
+      }, { passive: true });
     }
 
     // 17. PERSISTENCE (SAVE / LOAD / BACKUP JSON)
@@ -2581,8 +3127,12 @@ Toàn bộ câu trả lời của đề này sẽ được xóa trắng để b�
     }
 
     function scrollToPaletteMobile() {
-      const el = document.getElementById('paletteTitle');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (window.innerWidth < 1024) {
+        openMobilePalette();
+      } else {
+        const el = document.getElementById('paletteTitle');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
 
     // Initialize storage, IDB fallback, PWA Service Worker & Cloud Sync
@@ -2605,6 +3155,8 @@ Toàn bộ câu trả lời của đề này sẽ được xóa trắng để b�
 
       switchMainTab(currentMainTab || 'exam');
       checkUrlHashSync();
+      applyStoredFontSize();
+      initMobileSwipeGestures();
 
       // Pull latest cloud state & open live SSE channel
       await pullStateFromCloud(false);

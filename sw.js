@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ab730-exam-pwa-v8';
+const CACHE_NAME = 'ab730-exam-pwa-v9';
 const ASSETS = [
   './',
   './index.html',
