@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ab730-exam-pwa-v11-iphone-native';
+const CACHE_NAME = 'ab730-exam-pwa-v12-full-restored';
 const ASSETS = [
   './',
   './index.html',
